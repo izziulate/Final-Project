@@ -1,0 +1,44 @@
+---
+title: "IC Charge Balancing for Data QC"
+author: "Isabella Ulate"
+date: "`r Sys.Date()`"
+output: html_document
+theme: spacelab
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Charge Balancing
+
+#Import Data
+
+Load file with cleaned IC data to the environment from the working directory.
+
+```{r}
+.data <- as_tibble(read.csv(file = "IC_Data_for_R.xlsx",header=T,skip=4))
+
+IC.data <- IC_Data_for_R
+```
+
+#Organize Data
+
+Organize and clean the data to perform necessary calculations.
+
+```{r}
+IC.data.clean <- IC.data %>%
+  rename( Species = Ion...1, ppm = Amount, Ion = Ion...9) %>%
+  mutate(mols = (ppm/Molar.Mass)/1000, m.eq = ifelse(Ion == "Anion", -mols, mols))
+```
+
+#Calculate Ions (meq) and determine error
+
+```{r}
+Ion.Totals <- IC.data.clean %>%
+  group_by(Name) %>%
+  summarise(Total_m.eq = sum(m.eq, na.rm = TRUE)) 
+           # Anion_m.eq = sum(IC.data.clean[which(Ion = 'Anion'), 8]),
+           # Cation_m.eq = sum(IC.data.clean[which(Ion = 'Cation'), 8]))
+#Haven't quite figured this out, workign with my PI on this code to figure it out.
+```
